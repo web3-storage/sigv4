@@ -4,9 +4,6 @@ import { bytesToHex as toHex } from '@noble/hashes/utils'
 
 import './types'
 
-/**
- * This is a class.
- */
 export class SigV4 {
   /**
    * @param {SigV4Options} options
