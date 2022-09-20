@@ -4,21 +4,17 @@ import { bytesToHex as toHex } from '@noble/hashes/utils'
 
 import './types'
 
-export class SigV4 {
+/**
+ * @classdesc A signer for generating V4 URLs for AWS s3.
+ */
+class SigV4 {
   /**
-   * @param {SigV4Options} options
+   * @constructor
+   * @param {SigV4Options} settings
    */
-  constructor({
-    accessKeyId,
-    secretAccessKey,
-    region,
-    cache,
-    sessionToken,
-    publicRead,
-  }) {
+  constructor({ accessKeyId, secretAccessKey, region, cache }) {
     this.accessKeyId = accessKeyId
     this.secretAccessKey = secretAccessKey
-    /** @type {string} */
     this.service = 's3'
     this.region = region
     this.cache = cache || new Map()
@@ -30,14 +26,14 @@ export class SigV4 {
       this.service,
       'aws4_request',
     ].join('/')
-    this.sessionToken = sessionToken
-    this.publicRead = publicRead
   }
 
   /**
+   * Generate a signed URL based on settings and options.
    * @param {SignOptions} options
+   * @returns {URL} The signed url.
    */
-  sign({ bucket, key, checksum, expires }) {
+  sign({ bucket, key, checksum, expires, sessionToken, publicRead }) {
     this.url = new URL(
       `https://${bucket}.s3.${this.region}.amazonaws.com/${key}`
     )
@@ -67,11 +63,11 @@ export class SigV4 {
     )
     params.set('X-Amz-SignedHeaders', this.signedHeaders)
 
-    if (this.sessionToken) {
-      params.set('X-Amz-Security-Token', this.sessionToken)
+    if (sessionToken) {
+      params.set('X-Amz-Security-Token', sessionToken)
     }
 
-    if (this.publicRead) {
+    if (publicRead) {
       params.set('X-Amz-Acl', 'public-read')
     }
 
@@ -98,6 +94,8 @@ export class SigV4 {
   }
 
   /**
+   * @private
+   * Calculate the signature given options in sigv4
    * @returns {string}
    */
   signature() {
@@ -123,6 +121,7 @@ export class SigV4 {
   }
 
   /**
+   * @private
    * @returns {string}
    */
   stringToSign() {
@@ -135,6 +134,7 @@ export class SigV4 {
   }
 
   /**
+   * @private
    * @returns {string}
    */
   canonicalString() {
@@ -148,3 +148,5 @@ export class SigV4 {
     ].join('\n')
   }
 }
+
+export default SigV4

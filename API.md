@@ -1,3 +1,11 @@
+## Classes
+
+<dl>
+<dt><a href="#SigV4">SigV4</a></dt>
+<dd><p>A signer for generating V4 URLs for AWS s3.</p>
+</dd>
+</dl>
+
 ## Typedefs
 
 <dl>
@@ -7,20 +15,49 @@
 <dd></dd>
 </dl>
 
+<a name="SigV4"></a>
+
+## SigV4
+A signer for generating V4 URLs for AWS s3.
+
+**Kind**: global class  
+
+* [SigV4](#SigV4)
+    * [new SigV4(settings)](#new_SigV4_new)
+    * [.sign(options)](#SigV4+sign) ⇒ <code>URL</code>
+
+<a name="new_SigV4_new"></a>
+
+### new SigV4(settings)
+
+| Param | Type |
+| --- | --- |
+| settings | [<code>SigV4Options</code>](#SigV4Options) | 
+
+<a name="SigV4+sign"></a>
+
+### sigV4.sign(options) ⇒ <code>URL</code>
+Generate a signed URL based on settings and options.
+
+**Kind**: instance method of [<code>SigV4</code>](#SigV4)  
+**Returns**: <code>URL</code> - The signed url.  
+
+| Param | Type |
+| --- | --- |
+| options | [<code>SignOptions</code>](#SignOptions) | 
+
 <a name="SigV4Options"></a>
 
 ## SigV4Options : <code>object</code>
 **Kind**: global typedef  
 **Properties**
 
-| Name | Type |
-| --- | --- |
-| accessKeyId | <code>string</code> | 
-| secretAccessKey | <code>string</code> | 
-| [sessionToken] | <code>string</code> | 
-| [publicRead] | <code>boolean</code> | 
-| region | <code>string</code> | 
-| [cache] | <code>Map.&lt;string, ArrayBuffer&gt;</code> | 
+| Name | Type | Description |
+| --- | --- | --- |
+| accessKeyId | <code>string</code> | The AWS access key ID for account/IAM. |
+| secretAccessKey | <code>string</code> | The AWS access key for account/IAM. |
+| region | <code>string</code> | The AWS region to the S3 bucket is in. |
+| [cache] | <code>Map.&lt;string, ArrayBuffer&gt;</code> |  |
 
 <a name="SignOptions"></a>
 
@@ -28,10 +65,12 @@
 **Kind**: global typedef  
 **Properties**
 
-| Name | Type |
-| --- | --- |
-| bucket | <code>string</code> | 
-| key | <code>string</code> | 
-| [checksum] | <code>string</code> | 
-| [expires] | <code>number</code> | 
+| Name | Type | Default | Description |
+| --- | --- | --- | --- |
+| bucket | <code>string</code> |  | The bucket to store the object in. |
+| key | <code>string</code> |  | The key of the object in the bucket. |
+| [checksum] | <code>string</code> |  | The (sha256) checksum of the object, encoded as base64. |
+| [expires] | <code>number</code> | <code>86400</code> | The expiration time of signed URL in seconds. |
+| [sessionToken] | <code>string</code> |  | The temporary session token for AWS. |
+| [publicRead] | <code>boolean</code> | <code>false</code> | Should the stored object be public-read. |
 
