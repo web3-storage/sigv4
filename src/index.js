@@ -153,4 +153,4 @@ class Signer {
 
 export { Signer as SigV4 }
 export default Signer
-export * from './types.js'
+export * as Types from './types.js'
