@@ -1,7 +1,7 @@
 ## Classes
 
 <dl>
-<dt><a href="#Signer">Signer</a></dt>
+<dt><a href="#SigV4">SigV4</a></dt>
 <dd><p>A signer for generating V4 URLs for AWS s3.</p>
 </dd>
 </dl>
@@ -15,31 +15,31 @@
 <dd></dd>
 </dl>
 
-<a name="Signer"></a>
+<a name="SigV4"></a>
 
-## Signer
+## SigV4
 A signer for generating V4 URLs for AWS s3.
 
 **Kind**: global class  
 
-* [Signer](#Signer)
-    * [new Signer(settings)](#new_Signer_new)
-    * [.sign(options)](#Signer+sign) ⇒ <code>URL</code>
+* [SigV4](#SigV4)
+    * [new SigV4(settings)](#new_SigV4_new)
+    * [.sign(options)](#SigV4+sign) ⇒ <code>URL</code>
 
-<a name="new_Signer_new"></a>
+<a name="new_SigV4_new"></a>
 
-### new Signer(settings)
+### new SigV4(settings)
 
 | Param | Type |
 | --- | --- |
 | settings | [<code>SigV4Options</code>](#SigV4Options) | 
 
-<a name="Signer+sign"></a>
+<a name="SigV4+sign"></a>
 
-### signer.sign(options) ⇒ <code>URL</code>
+### sigV4.sign(options) ⇒ <code>URL</code>
 Generate a signed URL based on settings and options.
 
-**Kind**: instance method of [<code>Signer</code>](#Signer)  
+**Kind**: instance method of [<code>SigV4</code>](#SigV4)  
 **Returns**: <code>URL</code> - The signed url.  
 
 | Param | Type |

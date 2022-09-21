@@ -5,13 +5,6 @@ import { bytesToHex as toHex } from '@noble/hashes/utils'
 import './types'
 
 /**
- * @example
- * ```js
- * import {SIGv4} from '@web3-storage/sigv4'
- * ```
- */
-
-/**
  * @class
  * @classdesc A signer for generating V4 URLs for AWS s3.
  */
