@@ -68,7 +68,9 @@ class Signer {
     }
 
     if (publicRead) {
-      params.set('X-Amz-Acl', 'public-read')
+      // For some reason
+      // this header MUST be lower case or it is not respected.
+      params.set('x-amz-acl', 'public-read')
     }
 
     // Encode query string to be signed

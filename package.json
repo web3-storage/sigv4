@@ -5,7 +5,8 @@
   "license": "Apache-2.0 OR MIT",
   "type": "module",
   "main": "src/index.js",
-  "types": "types/src/index.d.ts",
+  "types": "dist/src/index.d.ts",
+  "repository": "web3-storage/sigv4",
   "publishConfig": {
     "access": "public"
   },
