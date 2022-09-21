@@ -120,7 +120,7 @@ describe('Signer', function () {
       })
 
       const search = url.searchParams
-      expect(search.get('X-Amz-Acl')).toBe('public-read')
+      expect(search.get('x-amz-acl')).toBe('public-read')
     })
 
     it('should sign NOT with public read when not given', function () {
@@ -138,7 +138,7 @@ describe('Signer', function () {
       })
 
       const search = url.searchParams
-      expect(search.get('X-Amz-Acl')).toBeNull()
+      expect(search.get('x-amz-acl')).toBeNull()
     })
   })
 
