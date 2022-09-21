@@ -32,7 +32,7 @@ A signer for generating V4 URLs for AWS s3.
 
 | Param | Type |
 | --- | --- |
-| settings | [<code>SigV4Options</code>](#SigV4Options) | 
+| settings | <code>Types.SigV4Options</code> | 
 
 <a name="Signer+sign"></a>
 
@@ -44,7 +44,7 @@ Generate a signed URL based on settings and options.
 
 | Param | Type |
 | --- | --- |
-| options | [<code>SignOptions</code>](#SignOptions) | 
+| options | <code>Types.SignOptions</code> | 
 
 <a name="SigV4Options"></a>
 
