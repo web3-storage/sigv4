@@ -2,7 +2,7 @@ import { hmac } from '@noble/hashes/hmac'
 import { sha256 } from '@noble/hashes/sha256'
 import { bytesToHex as toHex } from '@noble/hashes/utils'
 
-import './types'
+import * as Types from './types.js'
 
 /**
  * @class
@@ -10,7 +10,7 @@ import './types'
  */
 class Signer {
   /**
-   * @param {SigV4Options} settings
+   * @param {Types.SigV4Options} settings
    */
   constructor({ accessKeyId, secretAccessKey, region, cache }) {
     this.accessKeyId = accessKeyId
@@ -30,7 +30,7 @@ class Signer {
 
   /**
    * Generate a signed URL based on settings and options.
-   * @param {SignOptions} options
+   * @param {Types.SignOptions} options
    * @returns {URL} The signed url.
    */
   sign({ bucket, key, checksum, expires, sessionToken, publicRead }) {
@@ -153,3 +153,4 @@ class Signer {
 
 export { Signer as SigV4 }
 export default Signer
+export * as Types from './types.js'
