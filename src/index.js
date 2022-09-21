@@ -5,11 +5,18 @@ import { bytesToHex as toHex } from '@noble/hashes/utils'
 import './types'
 
 /**
+ * @example
+ * ```js
+ * import {SIGv4} from '@web3-storage/sigv4'
+ * ```
+ */
+
+/**
+ * @class
  * @classdesc A signer for generating V4 URLs for AWS s3.
  */
-class SigV4 {
+class Signer {
   /**
-   * @constructor
    * @param {SigV4Options} settings
    */
   constructor({ accessKeyId, secretAccessKey, region, cache }) {
@@ -149,4 +156,5 @@ class SigV4 {
   }
 }
 
-export default SigV4
+export { Signer as SigV4 }
+export default Signer

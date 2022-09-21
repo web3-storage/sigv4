@@ -71,18 +71,19 @@ describe('Signer', function () {
         accessKeyId: 'id',
         region: 'eu-central-1',
         secretAccessKey: 'secret',
-        sessionToken: 'token_123',
       })
 
+      const token = 'token_123'
       const url = signer.sign({
         bucket: 'bucket-name',
         key: 'name',
         checksum: 'sss',
         expires: 1000,
+        sessionToken: token,
       })
 
       const search = url.searchParams
-      expect(search.get('X-Amz-Security-Token')).toBe(signer.sessionToken)
+      expect(search.get('X-Amz-Security-Token')).toBe(token)
     })
 
     it('should sign NOT with session token when NOT given', function () {
@@ -108,7 +109,6 @@ describe('Signer', function () {
         accessKeyId: 'id',
         region: 'eu-central-1',
         secretAccessKey: 'secret',
-        publicRead: true,
       })
 
       const url = signer.sign({
@@ -116,6 +116,7 @@ describe('Signer', function () {
         key: 'name',
         checksum: 'sss',
         expires: 1000,
+        publicRead: true,
       })
 
       const search = url.searchParams
