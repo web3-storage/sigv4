@@ -6,14 +6,43 @@
 </dd>
 </dl>
 
-## Typedefs
+## Interfaces
 
 <dl>
-<dt><a href="#SigV4Options">SigV4Options</a> : <code>object</code></dt>
+<dt><a href="#SigV4Options">SigV4Options</a></dt>
 <dd></dd>
-<dt><a href="#SignOptions">SignOptions</a> : <code>object</code></dt>
+<dt><a href="#SignOptions">SignOptions</a></dt>
 <dd></dd>
 </dl>
+
+<a name="SigV4Options"></a>
+
+## SigV4Options
+**Kind**: global interface  
+**Properties**
+
+| Name | Description |
+| --- | --- |
+| accessKeyId | The AWS access key ID for account/IAM. |
+| secretAccessKey | The AWS access key for account/IAM. |
+| region | The AWS region to the S3 bucket is in. |
+| [cache] |  |
+
+<a name="SignOptions"></a>
+
+## SignOptions
+**Kind**: global interface  
+**Properties**
+
+| Name | Default | Description |
+| --- | --- | --- |
+| bucket |  | The bucket to store the object in. |
+| key |  | The key of the object in the bucket. |
+| [checksum] |  | The (sha256) checksum of the object, encoded as base64. |
+| [expires] | <code>86400</code> | The expiration time of signed URL in seconds. |
+| [sessionToken] |  | The temporary session token for AWS. |
+| [publicRead] | <code>false</code> | Should the stored object be public-read. |
+| [contentLength] | <code>0</code> | The content length of the stored object. |
 
 <a name="Signer"></a>
 
@@ -45,32 +74,4 @@ Generate a signed URL based on settings and options.
 | Param | Type |
 | --- | --- |
 | options | <code>Types.SignOptions</code> | 
-
-<a name="SigV4Options"></a>
-
-## SigV4Options : <code>object</code>
-**Kind**: global typedef  
-**Properties**
-
-| Name | Type | Description |
-| --- | --- | --- |
-| accessKeyId | <code>string</code> | The AWS access key ID for account/IAM. |
-| secretAccessKey | <code>string</code> | The AWS access key for account/IAM. |
-| region | <code>string</code> | The AWS region to the S3 bucket is in. |
-| [cache] | <code>Map.&lt;string, ArrayBuffer&gt;</code> |  |
-
-<a name="SignOptions"></a>
-
-## SignOptions : <code>object</code>
-**Kind**: global typedef  
-**Properties**
-
-| Name | Type | Default | Description |
-| --- | --- | --- | --- |
-| bucket | <code>string</code> |  | The bucket to store the object in. |
-| key | <code>string</code> |  | The key of the object in the bucket. |
-| [checksum] | <code>string</code> |  | The (sha256) checksum of the object, encoded as base64. |
-| [expires] | <code>number</code> | <code>86400</code> | The expiration time of signed URL in seconds. |
-| [sessionToken] | <code>string</code> |  | The temporary session token for AWS. |
-| [publicRead] | <code>boolean</code> | <code>false</code> | Should the stored object be public-read. |
 
