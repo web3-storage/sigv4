@@ -1,4 +1,5 @@
 import { sha256 } from '@noble/hashes/sha256'
+import fetch from '@web-std/fetch'
 import { assert, describe, expect, it } from 'vitest'
 
 import { SigV4 } from '../src/index.js'
@@ -139,6 +140,62 @@ describe('Signer', function () {
 
       const search = url.searchParams
       expect(search.get('x-amz-acl')).toBeNull()
+    })
+
+    it('should sign with size when given', function () {
+      const signer = new SigV4({
+        accessKeyId: 'id',
+        region: 'eu-central-1',
+        secretAccessKey: 'secret',
+      })
+
+      const url = signer.sign({
+        bucket: 'bucket-name',
+        key: 'name',
+        checksum: 'sss',
+        expires: 1000,
+        contentLength: 1024,
+      })
+
+      const search = url.searchParams
+      expect(search.get('Content-Length')).toBe('1024')
+    })
+
+    it('should sign with int size when given float', function () {
+      const signer = new SigV4({
+        accessKeyId: 'id',
+        region: 'eu-central-1',
+        secretAccessKey: 'secret',
+      })
+
+      const url = signer.sign({
+        bucket: 'bucket-name',
+        key: 'name',
+        checksum: 'sss',
+        expires: 1000,
+        contentLength: 1024.213,
+      })
+
+      const search = url.searchParams
+      expect(search.get('Content-Length')).toBe('1024')
+    })
+
+    it('should NOT sign with size when not given', function () {
+      const signer = new SigV4({
+        accessKeyId: 'id',
+        region: 'eu-central-1',
+        secretAccessKey: 'secret',
+      })
+
+      const url = signer.sign({
+        bucket: 'bucket-name',
+        key: 'name',
+        checksum: 'sss',
+        expires: 1000,
+      })
+
+      const search = url.searchParams
+      expect(search.get('Content-Length')).toBeNull()
     })
   })
 

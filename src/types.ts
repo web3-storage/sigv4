@@ -19,6 +19,7 @@ export interface SigV4Options {
  * @property [expires=86400] - The expiration time of signed URL in seconds.
  * @property [sessionToken] - The temporary session token for AWS.
  * @property [publicRead = false] - Should the stored object be public-read.
+ * @property [contentLength = 0] - The content length of the stored object.
  */
 export interface SignOptions {
   bucket: string
@@ -27,4 +28,5 @@ export interface SignOptions {
   expires?: number
   sessionToken?: string
   publicRead?: boolean
+  contentLength?: number
 }

@@ -33,7 +33,15 @@ class Signer {
    * @param {Types.SignOptions} options
    * @returns {URL} The signed url.
    */
-  sign({ bucket, key, checksum, expires, sessionToken, publicRead }) {
+  sign({
+    bucket,
+    key,
+    checksum,
+    contentLength,
+    expires,
+    sessionToken,
+    publicRead,
+  }) {
     this.url = new URL(
       `https://${bucket}.s3.${this.region}.amazonaws.com/${key}`
     )
@@ -44,6 +52,11 @@ class Signer {
     if (checksum) {
       this.headersNames.push('x-amz-checksum-sha256')
       this.canonicalHeaders.push(`x-amz-checksum-sha256:${checksum}`)
+    }
+
+    if (contentLength && contentLength > 0) {
+      this.headersNames.push('content-length')
+      this.canonicalHeaders.push(`content-length:${contentLength.toFixed(0)}`)
     }
     this.signedHeaders = this.headersNames.join(';')
 
@@ -62,6 +75,10 @@ class Signer {
       this.accessKeyId + '/' + this.credentialString
     )
     params.set('X-Amz-SignedHeaders', this.signedHeaders)
+
+    if (contentLength && contentLength > 0) {
+      params.set('Content-Length', contentLength.toFixed(0))
+    }
 
     if (sessionToken) {
       params.set('X-Amz-Security-Token', sessionToken)
