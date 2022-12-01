@@ -16,17 +16,17 @@ export const badFetch = async (url, options) => {
   options.path = url.pathname + url.search
 
   return new Promise((resolve) => {
-    console.log('req started', options)
+    //     console.log('req started', options)
     const body = options.body
     delete options.body
 
     var req = http.request(options, function (res) {
-      console.log('STATUS: ' + res.statusCode)
-      console.log('HEADERS: ' + JSON.stringify(res.headers))
+      //       console.log('STATUS: ' + res.statusCode)
+      //       console.log('HEADERS: ' + JSON.stringify(res.headers))
 
       res.setEncoding('utf8')
       res.on('data', function (chunk) {
-        console.log('BODY: ' + chunk)
+        //         console.log('BODY: ' + chunk)
       })
 
       resolve(res)
@@ -49,7 +49,7 @@ export const badFetchSocket = async (url, options) => {
   options.path = url.pathname + url.search
 
   return new Promise((resolve) => {
-    console.log('req started', options)
+    //     console.log('req started', options)
     const body = options.body
     delete options.body
 
@@ -72,16 +72,16 @@ export const badFetchSocket = async (url, options) => {
     rawHttpRequest += `${body}`
     rawHttpRequest += `\r\n\r\n`
 
-    console.log('raw req\n', rawHttpRequest)
+    //     console.log('raw req\n', rawHttpRequest)
 
     const socket = new net.Socket()
     socket.connect(port, options.host)
-    console.log('connection attempted')
+    //     console.log('connection attempted')
 
     socket.on('connect', () => {
-      console.log(`Connected to ${options.host}:${port}`)
-      console.log(`Local port ${socket.localPort}\n`)
-
+      //       console.log(`Connected to ${options.host}:${port}`)
+      //       console.log(`Local port ${socket.localPort}\n`)
+      //
       socket.write(rawHttpRequest)
     })
 
@@ -93,15 +93,3 @@ export const badFetchSocket = async (url, options) => {
     })
   })
 }
-
-// badFetchSocket(new URL('http://127.0.0.1'), {
-//   method: 'PUT',
-//   body: 'hello',
-//   contentEncoding: 'base64',
-//   contentType: 'application/text',
-//   contentLength: 1,
-//   headers: {
-//     'content-length': 5, //actual size is 15
-//     'x-amz-checksum-sha256': 12312321,
-//   },
-// })
