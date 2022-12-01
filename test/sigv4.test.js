@@ -1,11 +1,11 @@
-import { sha256 } from '@noble/hashes/sha256'
+import {sha256} from '@noble/hashes/sha256'
 import fetch from '@web-std/fetch'
 import http from 'http'
-import { assert, beforeEach, describe, expect, it, test } from 'vitest'
+import {assert, beforeEach, describe, expect, it, test} from 'vitest'
 
-import { SigV4 } from '../src/index.js'
-import { badFetch } from './badFetch.js'
-import { encodeBase64, sleep } from './utils.js'
+import {SigV4} from '../src/index.js'
+import {badFetch, badFetchSocket} from './badFetch.js'
+import {encodeBase64, sleep} from './utils.js'
 
 require('dotenv').config()
 
@@ -19,7 +19,7 @@ describe('Signer', function () {
       })
     })
 
-    it('should sign', function ({ signer }) {
+    it('should sign', function ({signer}) {
       const url = signer.sign({
         bucket: 'bucket-name',
         key: 'name',
@@ -35,7 +35,7 @@ describe('Signer', function () {
       assert.ok(typeof search.get('X-Amz-Signature') === 'string')
     })
 
-    it('should sign with checksum', function ({ signer }) {
+    it('should sign with checksum', function ({signer}) {
       const url = signer.sign({
         bucket: 'bucket-name',
         key: 'name',
@@ -49,7 +49,7 @@ describe('Signer', function () {
       )
     })
 
-    it('should sign with expires', function ({ signer }) {
+    it('should sign with expires', function ({signer}) {
       const url = signer.sign({
         bucket: 'bucket-name',
         key: 'name',
@@ -61,7 +61,7 @@ describe('Signer', function () {
       assert.equal(search.get('X-Amz-Expires'), '1000')
     })
 
-    it('should sign with session token when given', function ({ signer }) {
+    it('should sign with session token when given', function ({signer}) {
       const token = 'token_123'
       const url = signer.sign({
         bucket: 'bucket-name',
@@ -89,7 +89,7 @@ describe('Signer', function () {
       expect(search.get('X-Amz-Security-Token')).toBeNull()
     })
 
-    it('should sign with public read when true', function ({ signer }) {
+    it('should sign with public read when true', function ({signer}) {
       const url = signer.sign({
         bucket: 'bucket-name',
         key: 'name',
@@ -116,7 +116,7 @@ describe('Signer', function () {
       expect(search.get('x-amz-acl')).toBeNull()
     })
 
-    it('should sign with size when given', function ({ signer }) {
+    it('should sign with size when given', function ({signer}) {
       const url = signer.sign({
         bucket: 'bucket-name',
         key: 'name',
@@ -146,7 +146,7 @@ describe('Signer', function () {
     //       expect(search.get('Content-Length')).toBe('1024')
     //     })
 
-    it('should NOT sign with size when size is 0', function ({ signer }) {
+    it('should NOT sign with size when size is 0', function ({signer}) {
       const url = signer.sign({
         bucket: 'bucket-name',
         key: 'name',
@@ -162,7 +162,7 @@ describe('Signer', function () {
       )
     })
 
-    it('should NOT sign with size when not given', function ({ signer }) {
+    it('should NOT sign with size when not given', function ({signer}) {
       const url = signer.sign({
         bucket: 'bucket-name',
         key: 'name',
@@ -180,7 +180,7 @@ describe('Signer', function () {
 
   describe.skip('s3 integration needs .env and cors setup', function () {
     beforeEach((context) => {
-      context.data = { key: 'value' }
+      context.data = {key: 'value'}
 
       context.hash = encodeBase64(sha256(JSON.stringify(context.data)))
 
@@ -329,7 +329,7 @@ describe('Signer', function () {
 
     it.fails(
       'should sign and fail upload when content length is greater than actual content "bad fetch".',
-      async function ({ signer, hash, data, bucket }) {
+      async function ({signer, hash, data, bucket}) {
         const content = JSON.stringify(data)
         const contentLength = Buffer.from(content).byteLength
         const url = signer.sign({
@@ -419,7 +419,7 @@ describe('Signer', function () {
       data,
       bucket,
     }) {
-      const fakeData = { key: '' }
+      const fakeData = {key: ''}
       const content = JSON.stringify(fakeData)
       const contentLength = Buffer.from(content).byteLength
       const url = signer.sign({
@@ -495,4 +495,69 @@ describe('Signer', function () {
       })
     })
   })
+
+  it('should sign and upload, "manual writing with socket".', async function ({
+    signer,
+    hash,
+    data,
+    bucket,
+  }) {
+    const content = JSON.stringify(data)
+    const contentLength = Buffer.from(content).byteLength
+    const url = signer.sign({
+      bucket,
+      key: `testing/test-file-${Date.now()}-invalid-size.json`,
+      checksum: hash,
+      expires: 1000,
+      contentLength: contentLength,
+    })
+
+    //       const rsp = await badFetchSocket(new URL('http://127.0.0.1'), {
+    const rsp = await badFetchSocket(url, {
+      method: 'PUT',
+      body: content,
+      contentEncoding: 'base64',
+      contentType: 'application/json',
+      headers: {
+        'content-length': contentLength, //actual size is 15
+        'x-amz-checksum-sha256': hash,
+      },
+    })
+
+    console.log(Buffer.from(rsp).toString())
+    assert.ok(rsp.statusCode != 200)
+  })
+
+  it('should sign and fail upload when content size is smaller, "manual writing with socket".', async function ({
+    signer,
+    hash,
+    data,
+    bucket,
+  }) {
+    const content = JSON.stringify(data)
+    const contentLength = Buffer.from(content).byteLength
+    const url = signer.sign({
+      bucket,
+      key: `testing/test-file-${Date.now()}-invalid-size.json`,
+      checksum: hash,
+      expires: 1000,
+      contentLength: contentLength - 5,
+    })
+
+    //       const rsp = await badFetchSocket(new URL('http://127.0.0.1'), {
+    const rsp = await badFetchSocket(url, {
+      method: 'PUT',
+      body: content,
+      contentEncoding: 'base64',
+      contentType: 'application/json',
+      headers: {
+        'content-length': contentLength - 5, //actual size is 15
+        'x-amz-checksum-sha256': hash,
+      },
+    })
+
+    console.log(Buffer.from(rsp).toString())
+    assert.ok(rsp.statusCode != 200)
+  })
+})
 })
