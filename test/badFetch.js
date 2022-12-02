@@ -1,16 +1,6 @@
 import http from 'http'
 import net from 'net'
 
-// import { base64pad } from 'multiformats/bases/base64'
-// import { sha256 } from 'multiformats/hashes/sha2'
-
-// async function sha(bytes) {
-//   const sha = await sha256.digest(bytes)
-//   return sha.digest
-// }
-
-// const checksum = base64pad.baseEncode(await sha(file))
-
 export const badFetch = async (url, options) => {
   options.host = url.host
   options.path = url.pathname + url.search
