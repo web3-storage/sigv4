@@ -1,24 +1,21 @@
 import http from 'http'
 import net from 'net'
 
+// Since fetch will auto set the content length based on body,
+// These are functions for testing sending requests with "bad data".
+
+// A custom http request that allows you to send
+// "bad data", for example the incorrect contentlength.
 export const badFetch = async (url, options) => {
   options.host = url.host
   options.path = url.pathname + url.search
 
   return new Promise((resolve) => {
-    //     console.log('req started', options)
     const body = options.body
     delete options.body
 
     var req = http.request(options, function (res) {
-      //       console.log('STATUS: ' + res.statusCode)
-      //       console.log('HEADERS: ' + JSON.stringify(res.headers))
-
       res.setEncoding('utf8')
-      res.on('data', function (chunk) {
-        //         console.log('BODY: ' + chunk)
-      })
-
       resolve(res)
     })
 
@@ -31,15 +28,15 @@ export const badFetch = async (url, options) => {
   })
 }
 
+// Another custom http request using a socket to allow you to send
+// any data, including the incorrect content length and etc.
 export const badFetchSocket = async (url, options) => {
-  //   const port = 8080
   const port = 80
 
   options.host = url.host
   options.path = url.pathname + url.search
 
   return new Promise((resolve) => {
-    //     console.log('req started', options)
     const body = options.body
     delete options.body
 
@@ -62,16 +59,10 @@ export const badFetchSocket = async (url, options) => {
     rawHttpRequest += `${body}`
     rawHttpRequest += `\r\n\r\n`
 
-    //     console.log('raw req\n', rawHttpRequest)
-
     const socket = new net.Socket()
     socket.connect(port, options.host)
-    //     console.log('connection attempted')
 
     socket.on('connect', () => {
-      //       console.log(`Connected to ${options.host}:${port}`)
-      //       console.log(`Local port ${socket.localPort}\n`)
-      //
       socket.write(rawHttpRequest)
     })
 

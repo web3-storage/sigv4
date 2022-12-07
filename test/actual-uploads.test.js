@@ -1,30 +1,30 @@
-import { sha256 } from '@noble/hashes/sha256'
+import {sha256} from '@noble/hashes/sha256'
 import fetch from '@web-std/fetch'
 import http from 'http'
-import { assert, beforeEach, describe, expect, it, test } from 'vitest'
+import {assert, beforeEach, describe, expect, it, test} from 'vitest'
 
-import { SigV4 } from '../src/index.js'
-import { badFetch, badFetchSocket } from './badFetch.js'
-import { encodeBase64, sleep } from './utils.js'
+import {SigV4} from '../src/index.js'
+import {badFetch, badFetchSocket} from './badFetch.js'
+import {encodeBase64, sleep} from './utils.js'
 
 require('dotenv').config()
 
 describe('Signer', function () {
-  describe('s3 integration needs .env and cors setup', function () {
-    beforeEach((context) => {
-      context.data = { key: 'value' }
+  beforeEach((context) => {
+    context.data = {key: 'value'}
 
-      context.hash = encodeBase64(sha256(JSON.stringify(context.data)))
+    context.hash = encodeBase64(sha256(JSON.stringify(context.data)))
 
-      context.signer = new SigV4({
-        accessKeyId: process.env.S3_ACCESS_KEY_ID || '',
-        region: 'eu-central-1',
-        secretAccessKey: process.env.S3_SECRET_ACCESS_KEY || '',
-      })
-
-      context.bucket = process.env.S3_BUCKET || ''
+    context.signer = new SigV4({
+      accessKeyId: process.env.S3_ACCESS_KEY_ID || '',
+      region: 'eu-central-1',
+      secretAccessKey: process.env.S3_SECRET_ACCESS_KEY || '',
     })
 
+    context.bucket = process.env.S3_BUCKET || ''
+  })
+
+  describe('Using fetch for actual uploads', function () {
     it('should sign and upload', async function ({
       signer,
       hash,
@@ -124,12 +124,12 @@ describe('Signer', function () {
         },
       })
       const out = await rsp.text()
-      console.log(out)
 
       assert.ok(rsp.ok)
-      //       assert.ok(out.includes('Request has expired'))
     })
+  })
 
+  describe('When uploading via the "bad fetch" module', function () {
     it('should sign and upload when content length does match with "bad fetch".', async function ({
       signer,
       hash,
@@ -161,7 +161,7 @@ describe('Signer', function () {
 
     it.fails(
       'should sign and fail upload when content length is greater than actual content "bad fetch".',
-      async function ({ signer, hash, data, bucket }) {
+      async function ({signer, hash, data, bucket}) {
         const content = JSON.stringify(data)
         const contentLength = Buffer.from(content).byteLength
         const url = signer.sign({
@@ -251,7 +251,7 @@ describe('Signer', function () {
       data,
       bucket,
     }) {
-      const fakeData = { key: '' }
+      const fakeData = {key: ''}
       const content = JSON.stringify(fakeData)
       const contentLength = Buffer.from(content).byteLength
       const url = signer.sign({
@@ -274,7 +274,9 @@ describe('Signer', function () {
       })
       assert.ok(rsp.statusCode != 200)
     })
+  })
 
+  describe('When uploading via a manual http request (for controlling headers/etc)', function () {
     it('should sign and fail upload when content length less than content, manual writing.', async function ({
       signer,
       hash,
@@ -306,14 +308,7 @@ describe('Signer', function () {
             },
           },
           function (res) {
-            console.log('STATUS: ' + res.statusCode)
-            console.log('HEADERS: ' + JSON.stringify(res.headers))
-
             res.setEncoding('utf8')
-            res.on('data', function (chunk) {
-              console.log('BODY: ' + chunk)
-            })
-
             resolve(res)
           }
         )
@@ -326,7 +321,10 @@ describe('Signer', function () {
         req.end()
       })
     })
-    it('should sign and upload, "manual writing with socket".', async function ({
+  })
+
+  describe('When uploading via a socket', function () {
+    it('should sign and upload', async function ({
       signer,
       hash,
       data,
@@ -354,11 +352,10 @@ describe('Signer', function () {
         },
       })
 
-      console.log(Buffer.from(rsp).toString())
       assert.ok(rsp.statusCode != 200)
     })
 
-    it('should sign and fail upload when content size is smaller, "manual writing with socket".', async function ({
+    it('should sign and fail upload when content size is smaller', async function ({
       signer,
       hash,
       data,
@@ -386,7 +383,6 @@ describe('Signer', function () {
         },
       })
 
-      console.log(Buffer.from(rsp).toString())
       assert.ok(rsp.statusCode != 200)
     })
   })

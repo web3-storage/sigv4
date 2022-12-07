@@ -1,11 +1,6 @@
-import { sha256 } from '@noble/hashes/sha256'
-import fetch from '@web-std/fetch'
-import http from 'http'
 import { assert, beforeEach, describe, expect, it, test } from 'vitest'
 
 import { SigV4 } from '../src/index.js'
-import { badFetch, badFetchSocket } from './badFetch.js'
-import { encodeBase64, sleep } from './utils.js'
 
 require('dotenv').config()
 
