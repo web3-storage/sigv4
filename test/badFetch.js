@@ -4,8 +4,14 @@ import net from 'net'
 // Since fetch will auto set the content length based on body,
 // These are functions for testing sending requests with "bad data".
 
-// A custom http request that allows you to send
-// "bad data", for example the incorrect contentlength.
+/**
+ * A custom http request that allows you to send
+ * "bad data", for example the incorrect contentlength.
+ *
+ * @async
+ * @param {URL} url
+ * @param {any} options
+ */
 export const badFetch = async (url, options) => {
   options.host = url.host
   options.path = url.pathname + url.search
@@ -28,8 +34,14 @@ export const badFetch = async (url, options) => {
   })
 }
 
-// Another custom http request using a socket to allow you to send
-// any data, including the incorrect content length and etc.
+/**
+ * Another custom http request using a socket to allow you to send
+ * any data, including the incorrect content length and etc.
+ *
+ * @async
+ * @param {URL} url
+ * @param {any} options
+ */
 export const badFetchSocket = async (url, options) => {
   const port = 80
 

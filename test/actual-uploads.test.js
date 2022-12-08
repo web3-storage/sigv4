@@ -1,36 +1,43 @@
 import { sha256 } from '@noble/hashes/sha256'
 import fetch from '@web-std/fetch'
 import http from 'http'
-import { assert, beforeEach, describe, expect, it, test } from 'vitest'
+import { assert, beforeEach, describe, it } from 'vitest'
 
 import { SigV4 } from '../src/index.js'
 import { badFetch, badFetchSocket } from './badFetch.js'
 import { encodeBase64, sleep } from './utils.js'
 
+/**
+ * @typedef {import('./context').CustomContext & import('vitest').TestContext} CustomContext
+ */
+
 require('dotenv').config()
 
 describe('Actual Uploads', function () {
-  beforeEach((context) => {
-    context.data = { key: 'value' }
+  beforeEach(
+    /** @param {CustomContext} context */
+    (context) => {
+      context.data = { key: 'value' }
 
-    context.hash = encodeBase64(sha256(JSON.stringify(context.data)))
+      context.hash = encodeBase64(sha256(JSON.stringify(context.data)))
 
-    context.signer = new SigV4({
-      accessKeyId: process.env.S3_ACCESS_KEY_ID || '',
-      region: 'eu-central-1',
-      secretAccessKey: process.env.S3_SECRET_ACCESS_KEY || '',
-    })
+      context.signer = new SigV4({
+        accessKeyId: process.env.S3_ACCESS_KEY_ID || '',
+        region: 'eu-central-1',
+        secretAccessKey: process.env.S3_SECRET_ACCESS_KEY || '',
+      })
 
-    context.bucket = process.env.S3_BUCKET || ''
-  })
+      context.bucket = process.env.S3_BUCKET || ''
+    }
+  )
 
   describe('fetch', function () {
-    it('should sign and upload', async function ({
+    it('should sign and upload', /** @param {CustomContext} context */ async ({
       signer,
       hash,
       data,
       bucket,
-    }) {
+    }) => {
       const url = signer.sign({
         bucket,
         key: `testing/test-file-${Date.now()}.json`,
@@ -49,12 +56,12 @@ describe('Actual Uploads', function () {
       assert.ok(rsp.ok)
     })
 
-    it('should sign and fail upload because hash fails', async function ({
+    it('should sign and fail upload because hash fails', /** @param {CustomContext} context */ async ({
       signer,
       hash,
       data,
       bucket,
-    }) {
+    }) => {
       const url = signer.sign({
         bucket,
         key: `testing/test-file-${Date.now()}.json`,
@@ -73,12 +80,12 @@ describe('Actual Uploads', function () {
       assert.ok(out.includes('SignatureDoesNotMatch'))
     })
 
-    it('should sign and fail upload because expired', async function ({
+    it('should sign and fail upload because expired', /** @param {CustomContext} context */ async ({
       signer,
       hash,
       data,
       bucket,
-    }) {
+    }) => {
       const url = signer.sign({
         bucket,
         key: `testing/test-file-${Date.now()}.json`,
@@ -98,12 +105,12 @@ describe('Actual Uploads', function () {
       assert.ok(out.includes('Request has expired'))
     })
 
-    it('should sign and succeed upload with content length given', async function ({
+    it('should sign and succeed upload with content length given', /** @param {CustomContext} context */ async ({
       signer,
       hash,
       data,
       bucket,
-    }) {
+    }) => {
       const content = JSON.stringify(data)
       const contentLength = Buffer.from(content).byteLength
       const url = signer.sign({
@@ -119,7 +126,7 @@ describe('Actual Uploads', function () {
         method: 'PUT',
         body: content,
         headers: {
-          'content-length': contentLength,
+          'content-length': contentLength.toString(),
           'x-amz-checksum-sha256': hash,
         },
       })
@@ -130,12 +137,12 @@ describe('Actual Uploads', function () {
   })
 
   describe('http.request', function () {
-    it('should sign and upload when content length does match with "bad fetch".', async function ({
+    it('should sign and upload when content length does match with "bad fetch".', /** @param {CustomContext} context */ async ({
       signer,
       hash,
       data,
       bucket,
-    }) {
+    }) => {
       const content = JSON.stringify(data)
       const contentLength = Buffer.from(content).byteLength
       const url = signer.sign({
@@ -152,7 +159,7 @@ describe('Actual Uploads', function () {
         contentEncoding: 'base64',
         contentType: 'application/json',
         headers: {
-          'content-length': contentLength, //actual size is 15
+          'content-length': contentLength.toString(), //actual size is 15
           'x-amz-checksum-sha256': hash,
         },
       })
@@ -161,7 +168,8 @@ describe('Actual Uploads', function () {
 
     it.fails(
       'should sign and fail upload when content length is greater than actual content "bad fetch".',
-      async function ({ signer, hash, data, bucket }) {
+      /** @param {CustomContext} context */
+      async ({ signer, hash, data, bucket }) => {
         const content = JSON.stringify(data)
         const contentLength = Buffer.from(content).byteLength
         const url = signer.sign({
@@ -178,7 +186,7 @@ describe('Actual Uploads', function () {
           contentEncoding: 'base64',
           contentType: 'application/json',
           headers: {
-            'content-length': contentLength + 5, //actual size is 15
+            'content-length': (contentLength + 5).toString(), //actual size is 15
             'x-amz-checksum-sha256': hash,
           },
         })
@@ -186,12 +194,12 @@ describe('Actual Uploads', function () {
       }
     )
 
-    it('should sign and fail upload when content length is less than actual content "bad fetch".', async function ({
+    it('should sign and fail upload when content length is less than actual content "bad fetch".', /** @param {CustomContext} context */ async ({
       signer,
       hash,
       data,
       bucket,
-    }) {
+    }) => {
       const content = JSON.stringify(data)
       const contentLength = Buffer.from(content).byteLength
       const url = signer.sign({
@@ -216,12 +224,12 @@ describe('Actual Uploads', function () {
       assert.ok(rsp.statusCode != 200)
     })
 
-    it('should sign and fail upload when content length is less than actual content "bad fetch".', async function ({
+    it('should sign and fail upload when content length is less than actual content "bad fetch".', /** @param {CustomContext} context */ async ({
       signer,
       hash,
       data,
       bucket,
-    }) {
+    }) => {
       const content = JSON.stringify(data)
       const contentLength = Buffer.from(content).byteLength
       const url = signer.sign({
@@ -245,12 +253,12 @@ describe('Actual Uploads', function () {
       assert.ok(rsp.statusCode != 200)
     })
 
-    it('should sign and fail upload when content hash does not match, but length does "bad fetch".', async function ({
+    it('should sign and fail upload when content hash does not match, but length does "bad fetch".', /** @param {CustomContext} context */ async ({
       signer,
       hash,
       data,
       bucket,
-    }) {
+    }) => {
       const fakeData = { key: '' }
       const content = JSON.stringify(fakeData)
       const contentLength = Buffer.from(content).byteLength
@@ -277,12 +285,12 @@ describe('Actual Uploads', function () {
   })
 
   describe('manual http.request', function () {
-    it('should sign and fail upload when content length less than content, manual writing.', async function ({
+    it('should sign and fail upload when content length less than content, manual writing.', /** @param {CustomContext} context */ async ({
       signer,
       hash,
       data,
       bucket,
-    }) {
+    }) => {
       const content = JSON.stringify(data)
       const contentLength = Buffer.from(content).byteLength
       const url = signer.sign({
@@ -299,11 +307,8 @@ describe('Actual Uploads', function () {
             host: url.host,
             path: url.pathname + url.search,
             method: 'PUT',
-            body: content,
-            contentEncoding: 'base64',
-            contentType: 'application/json',
             headers: {
-              'content-length': 1,
+              'content-length': (1).toString(),
               'x-amz-checksum-sha256': hash,
             },
           },
@@ -324,12 +329,12 @@ describe('Actual Uploads', function () {
   })
 
   describe('net.socket', function () {
-    it('should sign and upload', async function ({
+    it('should sign and upload', /** @param {CustomContext} context */ async ({
       signer,
       hash,
       data,
       bucket,
-    }) {
+    }) => {
       const content = JSON.stringify(data)
       const contentLength = Buffer.from(content).byteLength
       const url = signer.sign({
@@ -355,12 +360,12 @@ describe('Actual Uploads', function () {
       assert.ok(rsp.statusCode != 200)
     })
 
-    it('should sign and fail upload when content size is smaller', async function ({
+    it('should sign and fail upload when content size is smaller', /** @param {CustomContext} context */ async ({
       signer,
       hash,
       data,
       bucket,
-    }) {
+    }) => {
       const content = JSON.stringify(data)
       const contentLength = Buffer.from(content).byteLength
       const url = signer.sign({

@@ -1,20 +1,27 @@
-import {assert, beforeEach, describe, expect, it, test} from 'vitest'
+import { assert, beforeEach, describe, expect, it } from 'vitest'
 
-import {SigV4} from '../src/index.js'
+import { SigV4 } from '../src/index.js'
+
+/**
+ * @typedef {import('./context').CustomContext & import('vitest').TestContext} CustomContext
+ */
 
 require('dotenv').config()
 
 describe('Signer', function () {
   describe('#sign()', function () {
-    beforeEach((context) => {
-      context.signer = new SigV4({
-        accessKeyId: 'id',
-        region: 'eu-central-1',
-        secretAccessKey: 'secret',
-      })
-    })
+    beforeEach(
+      /** @param {CustomContext} context */
+      (context) => {
+        context.signer = new SigV4({
+          accessKeyId: 'id',
+          region: 'eu-central-1',
+          secretAccessKey: 'secret',
+        })
+      }
+    )
 
-    it('should sign', function ({signer}) {
+    it('should sign', /** @param {CustomContext} context */ ({ signer }) => {
       const url = signer.sign({
         bucket: 'bucket-name',
         key: 'name',
@@ -30,7 +37,9 @@ describe('Signer', function () {
       assert.ok(typeof search.get('X-Amz-Signature') === 'string')
     })
 
-    it('should sign with checksum', function ({signer}) {
+    it('should sign with checksum', /** @param {CustomContext} context */ ({
+      signer,
+    }) => {
       const url = signer.sign({
         bucket: 'bucket-name',
         key: 'name',
@@ -44,7 +53,9 @@ describe('Signer', function () {
       )
     })
 
-    it('should sign with expires', function ({signer}) {
+    it('should sign with expires', /** @param {CustomContext} context */ ({
+      signer,
+    }) => {
       const url = signer.sign({
         bucket: 'bucket-name',
         key: 'name',
@@ -56,7 +67,9 @@ describe('Signer', function () {
       assert.equal(search.get('X-Amz-Expires'), '1000')
     })
 
-    it('should sign with session token when given', function ({signer}) {
+    it('should sign with session token when given', /** @param {CustomContext} context */ ({
+      signer,
+    }) => {
       const token = 'token_123'
       const url = signer.sign({
         bucket: 'bucket-name',
@@ -70,9 +83,9 @@ describe('Signer', function () {
       expect(search.get('X-Amz-Security-Token')).toBe(token)
     })
 
-    it('should sign NOT with session token when NOT given', function ({
+    it('should sign NOT with session token when NOT given', /** @param {CustomContext} context */ ({
       signer,
-    }) {
+    }) => {
       const url = signer.sign({
         bucket: 'bucket-name',
         key: 'name',
@@ -84,7 +97,9 @@ describe('Signer', function () {
       expect(search.get('X-Amz-Security-Token')).toBeNull()
     })
 
-    it('should sign with public read when true', function ({signer}) {
+    it('should sign with public read when true', /** @param {CustomContext} context */ ({
+      signer,
+    }) => {
       const url = signer.sign({
         bucket: 'bucket-name',
         key: 'name',
@@ -97,9 +112,9 @@ describe('Signer', function () {
       expect(search.get('x-amz-acl')).toBe('public-read')
     })
 
-    it('should sign NOT with public read when not given', function ({
+    it('should sign NOT with public read when not given', /** @param {CustomContext} context */ ({
       signer,
-    }) {
+    }) => {
       const url = signer.sign({
         bucket: 'bucket-name',
         key: 'name',
@@ -111,7 +126,9 @@ describe('Signer', function () {
       expect(search.get('x-amz-acl')).toBeNull()
     })
 
-    it('should sign with size when given', function ({signer}) {
+    it('should sign with size when given', /** @param {CustomContext} context */ ({
+      signer,
+    }) => {
       const url = signer.sign({
         bucket: 'bucket-name',
         key: 'name',
@@ -127,7 +144,9 @@ describe('Signer', function () {
       )
     })
 
-    it('should sign with int size when given float', function ({signer}) {
+    it('should sign with int size when given float', /** @param {CustomContext} context */ ({
+      signer,
+    }) => {
       const url = signer.sign({
         bucket: 'bucket-name',
         key: 'name',
@@ -140,7 +159,9 @@ describe('Signer', function () {
       expect(signer.canonicalHeaders).toContain('content-length:1024')
     })
 
-    it('should NOT sign with size when size is 0', function ({signer}) {
+    it('should NOT sign with size when size is 0', /** @param {CustomContext} context */ ({
+      signer,
+    }) => {
       const url = signer.sign({
         bucket: 'bucket-name',
         key: 'name',
@@ -156,7 +177,9 @@ describe('Signer', function () {
       )
     })
 
-    it('should NOT sign with size when not given', function ({signer}) {
+    it('should NOT sign with size when not given', /** @param {CustomContext} context */ ({
+      signer,
+    }) => {
       const url = signer.sign({
         bucket: 'bucket-name',
         key: 'name',
