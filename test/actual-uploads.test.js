@@ -1,17 +1,17 @@
-import {sha256} from '@noble/hashes/sha256'
+import { sha256 } from '@noble/hashes/sha256'
 import fetch from '@web-std/fetch'
 import http from 'http'
-import {assert, beforeEach, describe, expect, it, test} from 'vitest'
+import { assert, beforeEach, describe, expect, it, test } from 'vitest'
 
-import {SigV4} from '../src/index.js'
-import {badFetch, badFetchSocket} from './badFetch.js'
-import {encodeBase64, sleep} from './utils.js'
+import { SigV4 } from '../src/index.js'
+import { badFetch, badFetchSocket } from './badFetch.js'
+import { encodeBase64, sleep } from './utils.js'
 
 require('dotenv').config()
 
-describe('Signer', function () {
+describe('Actual Uploads', function () {
   beforeEach((context) => {
-    context.data = {key: 'value'}
+    context.data = { key: 'value' }
 
     context.hash = encodeBase64(sha256(JSON.stringify(context.data)))
 
@@ -24,7 +24,7 @@ describe('Signer', function () {
     context.bucket = process.env.S3_BUCKET || ''
   })
 
-  describe('Using fetch for actual uploads', function () {
+  describe('fetch', function () {
     it('should sign and upload', async function ({
       signer,
       hash,
@@ -129,7 +129,7 @@ describe('Signer', function () {
     })
   })
 
-  describe('When uploading via the "bad fetch" module', function () {
+  describe('http.request', function () {
     it('should sign and upload when content length does match with "bad fetch".', async function ({
       signer,
       hash,
@@ -161,7 +161,7 @@ describe('Signer', function () {
 
     it.fails(
       'should sign and fail upload when content length is greater than actual content "bad fetch".',
-      async function ({signer, hash, data, bucket}) {
+      async function ({ signer, hash, data, bucket }) {
         const content = JSON.stringify(data)
         const contentLength = Buffer.from(content).byteLength
         const url = signer.sign({
@@ -251,7 +251,7 @@ describe('Signer', function () {
       data,
       bucket,
     }) {
-      const fakeData = {key: ''}
+      const fakeData = { key: '' }
       const content = JSON.stringify(fakeData)
       const contentLength = Buffer.from(content).byteLength
       const url = signer.sign({
@@ -276,7 +276,7 @@ describe('Signer', function () {
     })
   })
 
-  describe('When uploading via a manual http request (for controlling headers/etc)', function () {
+  describe('manual http.request', function () {
     it('should sign and fail upload when content length less than content, manual writing.', async function ({
       signer,
       hash,
@@ -323,7 +323,7 @@ describe('Signer', function () {
     })
   })
 
-  describe('When uploading via a socket', function () {
+  describe('net.socket', function () {
     it('should sign and upload', async function ({
       signer,
       hash,

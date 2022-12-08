@@ -37,7 +37,6 @@
     "dotenv": "^16.0.0",
     "jsdoc-to-markdown": "^7.1.1",
     "lint-staged": "^13.0.3",
-    "multiformats": "^10.0.2",
     "prettier": "^2.7.1",
     "semantic-release": "^19.0.5",
     "typescript": "^4.8.3",

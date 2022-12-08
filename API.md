@@ -53,6 +53,8 @@ A signer for generating V4 URLs for AWS s3.
 
 * [Signer](#Signer)
     * [new Signer(settings)](#new_Signer_new)
+    * [.canonicalHeaders](#Signer+canonicalHeaders) : <code>Array.&lt;string&gt;</code>
+    * [.headersNames](#Signer+headersNames) : <code>Array.&lt;string&gt;</code>
     * [.sign(options)](#Signer+sign) ⇒ <code>URL</code>
 
 <a name="new_Signer_new"></a>
@@ -63,6 +65,14 @@ A signer for generating V4 URLs for AWS s3.
 | --- | --- |
 | settings | <code>Types.SigV4Options</code> | 
 
+<a name="Signer+canonicalHeaders"></a>
+
+### signer.canonicalHeaders : <code>Array.&lt;string&gt;</code>
+**Kind**: instance property of [<code>Signer</code>](#Signer)  
+<a name="Signer+headersNames"></a>
+
+### signer.headersNames : <code>Array.&lt;string&gt;</code>
+**Kind**: instance property of [<code>Signer</code>](#Signer)  
 <a name="Signer+sign"></a>
 
 ### signer.sign(options) ⇒ <code>URL</code>

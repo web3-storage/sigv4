@@ -1,6 +1,6 @@
-import { assert, beforeEach, describe, expect, it, test } from 'vitest'
+import {assert, beforeEach, describe, expect, it, test} from 'vitest'
 
-import { SigV4 } from '../src/index.js'
+import {SigV4} from '../src/index.js'
 
 require('dotenv').config()
 
@@ -14,7 +14,7 @@ describe('Signer', function () {
       })
     })
 
-    it('should sign', function ({ signer }) {
+    it('should sign', function ({signer}) {
       const url = signer.sign({
         bucket: 'bucket-name',
         key: 'name',
@@ -30,7 +30,7 @@ describe('Signer', function () {
       assert.ok(typeof search.get('X-Amz-Signature') === 'string')
     })
 
-    it('should sign with checksum', function ({ signer }) {
+    it('should sign with checksum', function ({signer}) {
       const url = signer.sign({
         bucket: 'bucket-name',
         key: 'name',
@@ -44,7 +44,7 @@ describe('Signer', function () {
       )
     })
 
-    it('should sign with expires', function ({ signer }) {
+    it('should sign with expires', function ({signer}) {
       const url = signer.sign({
         bucket: 'bucket-name',
         key: 'name',
@@ -56,7 +56,7 @@ describe('Signer', function () {
       assert.equal(search.get('X-Amz-Expires'), '1000')
     })
 
-    it('should sign with session token when given', function ({ signer }) {
+    it('should sign with session token when given', function ({signer}) {
       const token = 'token_123'
       const url = signer.sign({
         bucket: 'bucket-name',
@@ -84,7 +84,7 @@ describe('Signer', function () {
       expect(search.get('X-Amz-Security-Token')).toBeNull()
     })
 
-    it('should sign with public read when true', function ({ signer }) {
+    it('should sign with public read when true', function ({signer}) {
       const url = signer.sign({
         bucket: 'bucket-name',
         key: 'name',
@@ -111,7 +111,7 @@ describe('Signer', function () {
       expect(search.get('x-amz-acl')).toBeNull()
     })
 
-    it('should sign with size when given', function ({ signer }) {
+    it('should sign with size when given', function ({signer}) {
       const url = signer.sign({
         bucket: 'bucket-name',
         key: 'name',
@@ -127,21 +127,20 @@ describe('Signer', function () {
       )
     })
 
-    //     it('should sign with int size when given float', function ({ signer }) {
-    //       const url = signer.sign({
-    //         bucket: 'bucket-name',
-    //         key: 'name',
-    //         checksum: 'sss',
-    //         expires: 1000,
-    //         contentLength: 1024.213,
-    //       })
-    //
-    //       const search = url.searchParams
-    //       console.log('search', search)
-    //       expect(search.get('Content-Length')).toBe('1024')
-    //     })
+    it('should sign with int size when given float', function ({signer}) {
+      const url = signer.sign({
+        bucket: 'bucket-name',
+        key: 'name',
+        checksum: 'sss',
+        expires: 1000,
+        contentLength: 1024.213,
+      })
 
-    it('should NOT sign with size when size is 0', function ({ signer }) {
+      const search = url.searchParams
+      expect(signer.canonicalHeaders).toContain('content-length:1024')
+    })
+
+    it('should NOT sign with size when size is 0', function ({signer}) {
       const url = signer.sign({
         bucket: 'bucket-name',
         key: 'name',
@@ -157,7 +156,7 @@ describe('Signer', function () {
       )
     })
 
-    it('should NOT sign with size when not given', function ({ signer }) {
+    it('should NOT sign with size when not given', function ({signer}) {
       const url = signer.sign({
         bucket: 'bucket-name',
         key: 'name',
