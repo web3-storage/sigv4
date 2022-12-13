@@ -19,7 +19,6 @@ class Signer {
     this.region = region
     this.cache = cache || new Map()
     this.datetime = new Date().toISOString().replace(/[:-]|\.\d{3}/g, '')
-    this.headersNames = ['host']
     this.credentialString = [
       this.datetime.slice(0, 8),
       this.region,
@@ -33,19 +32,39 @@ class Signer {
    * @param {Types.SignOptions} options
    * @returns {URL} The signed url.
    */
-  sign({ bucket, key, checksum, expires, sessionToken, publicRead }) {
+  sign({
+    bucket,
+    key,
+    checksum,
+    contentLength = 0,
+    expires,
+    sessionToken,
+    publicRead,
+  }) {
     this.url = new URL(
       `https://${bucket}.s3.${this.region}.amazonaws.com/${key}`
     )
 
-    this.canonicalHeaders = [`host:${this.url.host}`]
+    /** @type {Array<string>} */
+    this.canonicalHeaders = []
+    /** @type {Array<string>} */
+    this.headersNames = []
+
+    this.headersNames.push('host')
+    this.canonicalHeaders.push(`host:${this.url.host}`)
+
+    if (contentLength > 0) {
+      this.headersNames.push('content-length')
+      this.canonicalHeaders.push(`content-length:${contentLength.toFixed(0)}`)
+    }
 
     // add checksum headers
     if (checksum) {
       this.headersNames.push('x-amz-checksum-sha256')
       this.canonicalHeaders.push(`x-amz-checksum-sha256:${checksum}`)
     }
-    this.signedHeaders = this.headersNames.join(';')
+
+    this.signedHeaders = this.headersNames.sort().join(';')
 
     this.encodedPath = encodeURIComponent(this.url.pathname).replace(
       /%2F/g,
@@ -68,8 +87,7 @@ class Signer {
     }
 
     if (publicRead) {
-      // For some reason
-      // this header MUST be lower case or it is not respected.
+      // For some reason, this header MUST be lower case or it is not respected.
       params.set('x-amz-acl', 'public-read')
     }
 
@@ -144,7 +162,7 @@ class Signer {
       'PUT',
       this.encodedPath,
       this.encodedSearch,
-      this.canonicalHeaders?.join('\n') + '\n',
+      this.canonicalHeaders?.sort().join('\n') + '\n',
       this.signedHeaders,
       'UNSIGNED-PAYLOAD',
     ].join('\n')
