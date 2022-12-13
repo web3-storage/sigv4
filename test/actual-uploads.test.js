@@ -134,6 +134,67 @@ describe('Actual Uploads', function () {
 
       assert.ok(rsp.ok)
     })
+
+    it('should sign and fail upload because data sent does not match signed checksum', async function () {
+      const data = { key: 'value' }
+
+      const hash = encodeBase64(sha256(JSON.stringify(data)))
+
+      const signer = new SigV4({
+        accessKeyId: process.env.S3_ACCESS_KEY_ID || '',
+        region: 'eu-central-1',
+        secretAccessKey: process.env.S3_SECRET_ACCESS_KEY || '',
+      })
+
+      const url = signer.sign({
+        bucket: process.env.S3_BUCKET || '',
+        key: `testing/test-file-${Date.now()}.json`,
+        checksum: hash,
+        expires: 1000,
+      })
+
+      const rsp = await fetch(url.toString(), {
+        method: 'PUT',
+        body: JSON.stringify({ key: 'xalue' }), // different upload
+        headers: {
+          'x-amz-checksum-sha256': hash, // correct hash for sig but not for uploaded data
+        },
+      })
+      assert.equal(rsp.status, 400)
+      const out = await rsp.text()
+      assert.include(
+        out,
+        'The SHA256 you specified did not match the calculated checksum.',
+        out
+      )
+    })
+
+    it('should sign and fail upload because request does not provide checksum', async function () {
+      const data = { key: 'value' }
+
+      const hash = encodeBase64(sha256(JSON.stringify(data)))
+
+      const signer = new SigV4({
+        accessKeyId: process.env.S3_ACCESS_KEY_ID || '',
+        region: 'eu-central-1',
+        secretAccessKey: process.env.S3_SECRET_ACCESS_KEY || '',
+      })
+
+      const url = signer.sign({
+        bucket: process.env.S3_BUCKET || '',
+        key: `testing/test-file-${Date.now()}.json`,
+        checksum: hash,
+        expires: 1000,
+      })
+
+      const rsp = await fetch(url.toString(), {
+        method: 'PUT',
+        body: JSON.stringify(data),
+      })
+      assert.equal(rsp.status, 403)
+      const out = await rsp.text()
+      assert.include(out, 'SignatureDoesNotMatch', out)
+    })
   })
 
   describe('http.request', function () {
