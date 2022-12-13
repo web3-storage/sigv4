@@ -1,5 +1,6 @@
 import { sha256 } from '@noble/hashes/sha256'
-import { assert, describe, expect, it } from 'vitest'
+import * as dotenv from 'dotenv'
+import { assert, beforeAll, describe, expect, it } from 'vitest'
 
 import { SigV4 } from '../src/index.js'
 import { encodeBase64, sleep } from './utils.js'
@@ -143,6 +144,10 @@ describe('Signer', function () {
   })
 
   describe.skip('s3 integration needs .env and cors setup', function () {
+    beforeAll(() => {
+      dotenv.config()
+    })
+
     it('should sign and upload', async function () {
       const data = { key: 'value' }
 
@@ -199,6 +204,67 @@ describe('Signer', function () {
       })
       const out = await rsp.text()
       assert.ok(out.includes('SignatureDoesNotMatch'))
+    })
+
+    it('should sign and fail upload because data sent does not match signed checksum', async function () {
+      const data = { key: 'value' }
+
+      const hash = encodeBase64(sha256(JSON.stringify(data)))
+
+      const signer = new SigV4({
+        accessKeyId: process.env.S3_ACCESS_KEY_ID || '',
+        region: 'eu-central-1',
+        secretAccessKey: process.env.S3_SECRET_ACCESS_KEY || '',
+      })
+
+      const url = signer.sign({
+        bucket: process.env.S3_BUCKET || '',
+        key: `testing/test-file-${Date.now()}.json`,
+        checksum: hash,
+        expires: 1000,
+      })
+
+      const rsp = await fetch(url.toString(), {
+        method: 'PUT',
+        body: JSON.stringify({ key: 'xalue' }), // different upload
+        headers: {
+          'x-amz-checksum-sha256': hash, // correct hash for sig but not for uploaded data
+        },
+      })
+      assert.equal(rsp.status, 400)
+      const out = await rsp.text()
+      assert.include(
+        out,
+        'The SHA256 you specified did not match the calculated checksum.',
+        out
+      )
+    })
+
+    it('should sign and fail upload because request does not provide checksum', async function () {
+      const data = { key: 'value' }
+
+      const hash = encodeBase64(sha256(JSON.stringify(data)))
+
+      const signer = new SigV4({
+        accessKeyId: process.env.S3_ACCESS_KEY_ID || '',
+        region: 'eu-central-1',
+        secretAccessKey: process.env.S3_SECRET_ACCESS_KEY || '',
+      })
+
+      const url = signer.sign({
+        bucket: process.env.S3_BUCKET || '',
+        key: `testing/test-file-${Date.now()}.json`,
+        checksum: hash,
+        expires: 1000,
+      })
+
+      const rsp = await fetch(url.toString(), {
+        method: 'PUT',
+        body: JSON.stringify(data),
+      })
+      assert.equal(rsp.status, 403)
+      const out = await rsp.text()
+      assert.include(out, 'SignatureDoesNotMatch', out)
     })
 
     it('should sign and fail upload because expired', async function () {
